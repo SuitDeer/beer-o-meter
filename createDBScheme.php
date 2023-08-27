@@ -33,7 +33,7 @@ if (!mysqli_query(
       p_ID INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
       t_ID INT(10) UNSIGNED NOT NULL,
       p_name VARCHAR(100) NOT NULL,
-      p_vorname VARCHAR(100) NOT NULL,
+      p_firstname VARCHAR(100) NOT NULL,
       FOREIGN KEY (t_ID) REFERENCES team(t_ID) ON UPDATE CASCADE ON DELETE CASCADE
   )"
   )) {

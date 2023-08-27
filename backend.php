@@ -26,7 +26,7 @@ if (isset($_POST["dbOperation"])) {
 
 
       // Get persons of team
-      $sqlPers = "SELECT p_ID, p_name, p_vorname FROM person WHERE t_ID=" . $row['t_ID'];
+      $sqlPers = "SELECT p_ID, p_name, p_firstname FROM person WHERE t_ID=" . $row['t_ID'];
       $queryPers = mysqli_query($db, $sqlPers);
       $personInfo = "";
 
@@ -39,7 +39,7 @@ if (isset($_POST["dbOperation"])) {
           $beersPers = $rowBeerPers['sumbeer'];
         }
 
-        $personInfo = $personInfo . '<tr><td>' . $rowPers['p_ID'] . '</td><td>' . $rowPers['p_name'] . '</td><td>' . $rowPers['p_vorname'] . '</td><td>' . $beersPers . '</td><td><a onclick="deletePerson(' . $rowPers['p_ID'] . ')" aria-label="Delete person">🗑️</a></td></tr>';
+        $personInfo = $personInfo . '<tr><td>' . $rowPers['p_ID'] . '</td><td>' . $rowPers['p_name'] . '</td><td>' . $rowPers['p_firstname'] . '</td><td>' . $beersPers . '</td><td><a onclick="deletePerson(' . $rowPers['p_ID'] . ')" aria-label="Delete person">🗑️</a></td></tr>';
       }
       $personInfos[] = $personInfo;
 
@@ -95,12 +95,12 @@ if (isset($_POST["dbOperation"])) {
     include_once("php_includes/db_connect.php");
 
     $name = $_POST["name"];
-    $vorname = $_POST["vorname"];
+    $firstname = $_POST["firstname"];
     $teamId = $_POST["teamId"];
 
     // Insert new Team into database
-    $sql = "INSERT INTO person (p_name, p_vorname, t_id)       
-        VALUES('$name', '$vorname', '$teamId')";
+    $sql = "INSERT INTO person (p_name, p_firstname, t_id)       
+        VALUES('$name', '$firstname', '$teamId')";
     $query = mysqli_query($db, $sql);
 
     //Sending AJAX Response (Answer)
@@ -138,6 +138,13 @@ if (isset($_POST["dbOperation"])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍺</text></svg>">
   <title>Beer-o-Meter</title>
+  <script>
+    // Redirect from http:// to https://
+    var loc = window.location.href + '';
+    if (loc.indexOf('http://') == 0) {
+      window.location.href = loc.replace('http://', 'https://');
+    }
+  </script>
   <script src="js/ajax.js"></script>
   <script src="js/qrcode.min.js"></script>
   <style>
@@ -146,6 +153,7 @@ if (isset($_POST["dbOperation"])) {
     td {
       border: 1px solid black;
       border-collapse: collapse;
+      text-align: center;
     }
 
     .personTableTd {
@@ -170,7 +178,7 @@ if (isset($_POST["dbOperation"])) {
   <div style="display: inline-block;">
     <form onSubmit="return false;">
       <h1>Add Team</h1>
-      <label for="teamnameInput" name="teamnameInputLabel">Teamname:</label>
+      <label for="teamnameInput" name="teamnameInputLabel">Team name:</label>
       <input type="text" class="form-control" id="teamnameInput" placeholder="Teamname" name="teamnameInput" required>
       <br>
       <button type="submit" id="submitbtnAdd" onclick="addTeam()" aria-label="Submit">Submit</button>
@@ -185,8 +193,8 @@ if (isset($_POST["dbOperation"])) {
       <label for="nameInput" name="nameInputLabel">Name:</label>
       <input type="text" class="form-control" id="nameInput" placeholder="Name" name="nameInput" required>
       <br>
-      <label for="vornameInput" name="vornameInputLabel">Vorname:</label>
-      <input type="text" class="form-control" id="vornameInput" placeholder="Vorname" name="vornameInput" required>
+      <label for="firstnameInput" name="firstnameInputLabel">First name:</label>
+      <input type="text" class="form-control" id="firstnameInput" placeholder="firstname" name="firstnameInput" required>
       <br>
       <label for="teamDropDown">Team:</label>
 
@@ -216,8 +224,8 @@ if (isset($_POST["dbOperation"])) {
     <thead>
       <tr>
         <th>Team-ID</th>
-        <th>Teamname</th>
-        <th>Biere</th>
+        <th>Team name</th>
+        <th>Beers</th>
         <th>Mitglieder</th>
         <th>Delete</th>
       </tr>
@@ -270,7 +278,7 @@ if (isset($_POST["dbOperation"])) {
 
           // Update view Modal Content
           for (let i = 0; i < teamIdArray.length; i++) {
-            document.getElementById('teamlist').innerHTML += "<tr><td>" + teamIdArray[i] + "</td><td>" + teamNameArray[i] + "</td><td>" + sumbeersArray[i] + "</td><td class=\"personTableTd\"> <table><thead><tr><td>Person-ID</td><td>Name</td><td>Vorname</td><td>Biere</td><td>Delete</td><td>QR-Code Value</td><td>QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td>" + delTeamArray[i] + "</td></tr>";
+            document.getElementById('teamlist').innerHTML += "<tr><td>" + teamIdArray[i] + "</td><td>" + teamNameArray[i] + "</td><td>" + sumbeersArray[i] + "</td><td class=\"personTableTd\"> <table><thead><tr><td>Person-ID</td><td>Name</td><td>First Name</td><td>Beers</td><td>Delete</td><td>QR-Code Value</td><td>QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td>" + delTeamArray[i] + "</td></tr>";
           }
 
           // Generate QR-Code for each person
@@ -361,12 +369,12 @@ if (isset($_POST["dbOperation"])) {
     // AJAX function that adds a person
     function addPerson() {
       var name = document.getElementById("nameInput").value;
-      var vorname = document.getElementById("vornameInput").value;
+      var firstname = document.getElementById("firstnameInput").value;
       var teamId = document.getElementById("teamDropDown").value;
       var dbOperation = "ADD-PERSON";
 
-      if (name == "" || vorname == "" || teamId == "") {
-        document.getElementById("personAddStatus").innerHTML = `<b>Name, Vorname or teamId is empty</b>`;
+      if (name == "" || firstname == "" || teamId == "") {
+        document.getElementById("personAddStatus").innerHTML = `<b>Name, firstname or teamId is empty</b>`;
         exit();
       } else {
         document.getElementById("personAddStatus").innerHTML = ``;
@@ -382,7 +390,7 @@ if (isset($_POST["dbOperation"])) {
             window.scrollTo(0, 0);
           }
         }
-        ajax.send("dbOperation=" + dbOperation + "&name=" + name + "&vorname=" + vorname + "&teamId=" + teamId);
+        ajax.send("dbOperation=" + dbOperation + "&name=" + name + "&firstname=" + firstname + "&teamId=" + teamId);
       }
     }
 
