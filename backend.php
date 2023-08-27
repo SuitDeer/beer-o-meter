@@ -179,7 +179,7 @@ if (isset($_POST["dbOperation"])) {
     <form onSubmit="return false;">
       <h1>Add Team</h1>
       <label for="teamnameInput" name="teamnameInputLabel">Team name:</label>
-      <input type="text" class="form-control" id="teamnameInput" placeholder="Teamname" name="teamnameInput" required>
+      <input type="text" class="form-control" id="teamnameInput" placeholder="Team name" name="teamnameInput" required>
       <br>
       <button type="submit" id="submitbtnAdd" onclick="addTeam()" aria-label="Submit">Submit</button>
       <br>
@@ -194,7 +194,7 @@ if (isset($_POST["dbOperation"])) {
       <input type="text" class="form-control" id="nameInput" placeholder="Name" name="nameInput" required>
       <br>
       <label for="firstnameInput" name="firstnameInputLabel">First name:</label>
-      <input type="text" class="form-control" id="firstnameInput" placeholder="firstname" name="firstnameInput" required>
+      <input type="text" class="form-control" id="firstnameInput" placeholder="First name" name="firstnameInput" required>
       <br>
       <label for="teamDropDown">Team:</label>
 
@@ -226,7 +226,7 @@ if (isset($_POST["dbOperation"])) {
         <th>Team-ID</th>
         <th>Team name</th>
         <th>Beers</th>
-        <th>Mitglieder</th>
+        <th>Members</th>
         <th>Delete</th>
       </tr>
     </thead>
@@ -278,7 +278,7 @@ if (isset($_POST["dbOperation"])) {
 
           // Update view Modal Content
           for (let i = 0; i < teamIdArray.length; i++) {
-            document.getElementById('teamlist').innerHTML += "<tr><td>" + teamIdArray[i] + "</td><td>" + teamNameArray[i] + "</td><td>" + sumbeersArray[i] + "</td><td class=\"personTableTd\"> <table><thead><tr><td>Person-ID</td><td>Name</td><td>First Name</td><td>Beers</td><td>Delete</td><td>QR-Code Value</td><td>QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td>" + delTeamArray[i] + "</td></tr>";
+            document.getElementById('teamlist').innerHTML += "<tr><td>" + teamIdArray[i] + "</td><td>" + teamNameArray[i] + "</td><td>" + sumbeersArray[i] + "</td><td class=\"personTableTd\"> <table><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code value</td><td>QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td>" + delTeamArray[i] + "</td></tr>";
           }
 
           // Generate QR-Code for each person
