@@ -15,7 +15,16 @@ if (isset($_POST["dbOperation"])) {
     while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
       $teamId[] = $row['t_ID'];
       $teamName[] = $row['t_name'];
-      $sumbeer[] = $row['sumbeer'];
+
+      // Get number of persons in a team
+      $sqlNumPers = "SELECT COUNT(p_ID) as sumpers FROM team JOIN person ON team.t_ID = person.t_ID WHERE team.t_ID =" . $row['t_ID'];
+      $queryNumPers = mysqli_query($db, $sqlNumPers);
+      $sumpers = 0;
+      while ($rowNumPers = mysqli_fetch_array($queryNumPers, MYSQLI_ASSOC)) {
+        $sumpers = $rowNumPers['sumpers'];
+      }
+
+      $sumbeer[] = $row['sumbeer'] - $sumpers;
     }
 
     //Sending AJAX Response (Answer)
@@ -60,6 +69,10 @@ $teamNumRows = mysqli_num_rows($query);
   </script>
   <script src="js/ajax.js"></script>
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       display: flex;
@@ -76,8 +89,6 @@ $teamNumRows = mysqli_num_rows($query);
       position: absolute;
       height: 100%;
       align-items: flex-end;
-      overflow-x: hidden;
-      overflow-y: hidden;
     }
 
     .bar {
@@ -176,7 +187,7 @@ $teamNumRows = mysqli_num_rows($query);
   </style>
 </head>
 
-<body  onclick="redirectToBackend()" >
+<body onclick="redirectToBackend()">
   <div class="chart" id="chart">
     <?php
     for ($i = 0; $i < $teamNumRows; $i++) {
@@ -244,7 +255,10 @@ $teamNumRows = mysqli_num_rows($query);
             document.getElementById('beernumbers' + i).innerHTML = "Biere: " + sumbeerArray[i];
 
             document.getElementById('teamname' + i).style.fontSize = "40px";
+            // Resize Team name to fit in a bar.
             resize_to_fit(i);
+            // Call the scrollHorizontally function to scroll to the right of the screen if there are too many bars to dislay at once. 
+            setTimeout(scrollHorizontally, 7000);
           }
         }
       }
@@ -265,11 +279,11 @@ $teamNumRows = mysqli_num_rows($query);
 
     // Function to scroll the body horizontally
     function scrollHorizontally() {
-      let scrollInterval = 10; // Adjust the scroll interval (in milliseconds) as needed
+      let scrollInterval = 100; // Adjust the scroll interval (in milliseconds) as needed
       let endDelay = 7000; // 5 seconds end delay
 
-      let scrollcontainer = document.getElementById("chart");
-      scrollcontainer.scrollTo(scrollcontainer.scrollLeft + 1, 0);
+      let scrollcontainer = document.documentElement;
+      scrollcontainer.scrollTo(scrollcontainer.scrollLeft + 10, 0);
 
       // Check if scrolling has reached the end
       if (scrollcontainer.scrollLeft >= scrollcontainer.scrollWidth - window.innerWidth) {
@@ -285,7 +299,6 @@ $teamNumRows = mysqli_num_rows($query);
 
     // Start scrolling automatically with a delay when the page loads
     window.onload = function() {
-      setTimeout(scrollHorizontally, 7000);
       getTeamBeersInfos();
     };
   </script>

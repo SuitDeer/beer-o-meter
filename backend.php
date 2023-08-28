@@ -21,7 +21,15 @@ if (isset($_POST["dbOperation"])) {
       $sqlBeer = "SELECT COUNT(beer.b_ID) as sumbeer FROM team JOIN person ON team.t_ID = person.t_ID JOIN beer ON person.p_ID = beer.p_ID WHERE team.t_ID =" . $row['t_ID'] . " GROUP BY team.t_ID";
       $queryBeer = mysqli_query($db, $sqlBeer);
       while ($rowBeer = mysqli_fetch_array($queryBeer, MYSQLI_ASSOC)) {
-        $sumbeers[] = $rowBeer['sumbeer'];
+
+        // Get number of persons in a team
+        $sqlNumPers = "SELECT COUNT(p_ID) as sumpers FROM team JOIN person ON team.t_ID = person.t_ID WHERE team.t_ID =" . $row['t_ID'];
+        $queryNumPers = mysqli_query($db, $sqlNumPers);
+        $sumpers = 0;
+        while ($rowNumPers = mysqli_fetch_array($queryNumPers, MYSQLI_ASSOC)) {
+          $sumpers = $rowNumPers['sumpers'];
+        }
+        $sumbeers[] = $rowBeer['sumbeer'] - $sumpers;
       }
 
 
@@ -36,7 +44,8 @@ if (isset($_POST["dbOperation"])) {
         $queryBeerPers = mysqli_query($db, $sqlBeerPers);
         $beersPers = 0;
         while ($rowBeerPers = mysqli_fetch_array($queryBeerPers, MYSQLI_ASSOC)) {
-          $beersPers = $rowBeerPers['sumbeer'];
+          // Remove the first beer of person
+          $beersPers = $rowBeerPers['sumbeer'] - 1;
         }
 
         $personInfo = $personInfo . '<tr><td>' . $rowPers['p_ID'] . '</td><td>' . $rowPers['p_name'] . '</td><td>' . $rowPers['p_firstname'] . '</td><td>' . $beersPers . '</td><td><a onclick="deletePerson(' . $rowPers['p_ID'] . ')" aria-label="Delete person">🗑️</a></td></tr>';
@@ -103,6 +112,15 @@ if (isset($_POST["dbOperation"])) {
         VALUES('$name', '$firstname', '$teamId')";
     $query = mysqli_query($db, $sql);
 
+
+    // Get p_ID of newly added person
+    $newPersonId = mysqli_insert_id($db);
+
+    // Insert first beer for added person
+    $sql = "INSERT INTO beer (p_ID)       
+        VALUES('$newPersonId')";
+    $query = mysqli_query($db, $sql);
+
     //Sending AJAX Response (Answer)
     echo "ok";
     exit();
@@ -156,10 +174,6 @@ if (isset($_POST["dbOperation"])) {
       text-align: center;
     }
 
-    .personTableTd {
-      float: right;
-    }
-
     a {
       cursor: pointer;
     }
@@ -190,11 +204,11 @@ if (isset($_POST["dbOperation"])) {
   <div style="display: inline-block; margin-left: 10px;">
     <form onSubmit="return false;">
       <h1>Add Person</h1>
-      <label for="nameInput" name="nameInputLabel">Name:</label>
-      <input type="text" class="form-control" id="nameInput" placeholder="Name" name="nameInput" required>
-      <br>
       <label for="firstnameInput" name="firstnameInputLabel">First name:</label>
       <input type="text" class="form-control" id="firstnameInput" placeholder="First name" name="firstnameInput" required>
+      <br>
+      <label for="nameInput" name="nameInputLabel">Name:</label>
+      <input type="text" class="form-control" id="nameInput" placeholder="Name" name="nameInput" required>
       <br>
       <label for="teamDropDown">Team:</label>
 
@@ -220,14 +234,14 @@ if (isset($_POST["dbOperation"])) {
 
   <h1>Team-List</h1>
 
-  <table>
+  <table style="border-width: 3px;">
     <thead>
-      <tr>
-        <th>Team-ID</th>
-        <th>Team name</th>
-        <th>Beers</th>
-        <th>Members</th>
-        <th>Delete</th>
+      <tr style="border-width: 3px;">
+        <th style="border-width: 3px;">Team-ID</th>
+        <th style="border-width: 3px;">Team name</th>
+        <th style="border-width: 3px;">Beers</th>
+        <th style="border-width: 3px;">Members</th>
+        <th style="border-width: 3px;">Delete</th>
       </tr>
     </thead>
     <tbody id="teamlist">
@@ -276,9 +290,8 @@ if (isset($_POST["dbOperation"])) {
           var personInfosArray = JSON.parse(subresults[3]);
           var delTeamArray = JSON.parse(subresults[4]);
 
-          // Update view Modal Content
           for (let i = 0; i < teamIdArray.length; i++) {
-            document.getElementById('teamlist').innerHTML += "<tr><td>" + teamIdArray[i] + "</td><td>" + teamNameArray[i] + "</td><td>" + sumbeersArray[i] + "</td><td class=\"personTableTd\"> <table><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code value</td><td>QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td>" + delTeamArray[i] + "</td></tr>";
+            document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\">" + delTeamArray[i] + "</td></tr>";
           }
 
           // Generate QR-Code for each person
@@ -295,15 +308,14 @@ if (isset($_POST["dbOperation"])) {
                 }
               }
 
+              //Add QR <td>-Element to table for (QR-Code) colum
+              var x = tr[j].insertCell();
+              x.innerHTML = '<div id="qrcode' + i + j + '" style="margin: 5px;"></div>';
+
               // Create a new QR code instance
               hash(personString).then((hex) => {
-                //Add QR <td>-Element to table for (QR-Code-Value) column
-                var x = tr[j].insertCell();
-                x.innerHTML = hex;
 
-                //Add QR <td>-Element to table for (QR-Code) colum
-                var x = tr[j].insertCell();
-                x.innerHTML = '<div id="qrcode' + i + j + '" style="margin: 5px;"></div>';
+                document.getElementById("qrcode" + i + j).textContent = hex;
 
                 var qrcode = new QRCode(document.getElementById("qrcode" + i + j), {
                   text: hex,
