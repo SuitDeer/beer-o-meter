@@ -363,18 +363,21 @@ if (isset($_POST["dbOperation"])) {
     function deleteTeam(teamId) {
       var dbOperation = "DELETE-TEAM";
 
-      var ajax = ajaxObj("POST", "backend.php");
-      ajax.onreadystatechange = function() {
-        if (ajaxReturn(ajax) == true) {
-          var result = ajax.responseText.trim();
+      if (confirm("Confirm to delete Team.\n\n(All Members of this team get deleted.\nFurthermore all assosiated beers from a person are also deleted.)") == true) {
+        var ajax = ajaxObj("POST", "backend.php");
+        ajax.onreadystatechange = function() {
+          if (ajaxReturn(ajax) == true) {
+            var result = ajax.responseText.trim();
 
-          // Reload Page
-          location.reload(true);
-          window.location.href = window.location.href;
-          window.scrollTo(0, 0);
+            // Reload Page
+            location.reload(true);
+            window.location.href = window.location.href;
+            window.scrollTo(0, 0);
+          }
         }
+        ajax.send("dbOperation=" + dbOperation + "&teamId=" + teamId);
       }
-      ajax.send("dbOperation=" + dbOperation + "&teamId=" + teamId);
+
     }
 
 
@@ -410,18 +413,21 @@ if (isset($_POST["dbOperation"])) {
     function deletePerson(personId) {
       var dbOperation = "DELETE-PERSON";
 
-      var ajax = ajaxObj("POST", "backend.php");
-      ajax.onreadystatechange = function() {
-        if (ajaxReturn(ajax) == true) {
-          var result = ajax.responseText.trim();
+      if (confirm("Confirm to delete Person.\n\n(All assosiated beers from this person are also deleted.)") == true) {
+        var ajax = ajaxObj("POST", "backend.php");
+        ajax.onreadystatechange = function() {
+          if (ajaxReturn(ajax) == true) {
+            var result = ajax.responseText.trim();
 
-          // Reload Page
-          location.reload(true);
-          window.location.href = window.location.href;
-          window.scrollTo(0, 0);
+            // Reload Page
+            location.reload(true);
+            window.location.href = window.location.href;
+            window.scrollTo(0, 0);
+          }
         }
+        ajax.send("dbOperation=" + dbOperation + "&personId=" + personId);
       }
-      ajax.send("dbOperation=" + dbOperation + "&personId=" + personId);
+
     }
 
 
