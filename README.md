@@ -1,12 +1,17 @@
 # Beer-o-Meter
 
+## Front Page
 ![Main-Page-Screenshot](README-images/image.png)
 
 <br>
 
+## Backend Page
+
 ![Backend-Page-Screenshot](README-images/image(1).png)
 
 <br>
+
+## "Add Beer" Page
 
 ![Add-Beer-Page-Screenshot](README-images/image(2).png)
 
@@ -23,7 +28,7 @@ Open [https://localhost](https://localhost) to open the **Frontend Page**. On th
 
 On the **Backend Page** [https://localhost/backend.php](https://localhost/backend.php) you can add/remove Teams and add/remove persons to this teams. Each person gets is own QR-Code.
 
-On the **"Add beer" Page** [https://localhost/beer.php](https://localhost/beer.php) you can add beer to persons. You can use a connected Barcode-Scanner to scan the QR-Code of the Person you want to add a beer or you can copy the `QR-Code Value` from the table of the **Backend Page**.
+On the **"Add Beer" Page** [https://localhost/beer.php](https://localhost/beer.php) you can add beer to persons. You can use a connected Barcode-Scanner to scan the QR-Code of the Person you want to add a beer or you can copy the `QR-Code Value` from the table of the **Backend Page**.
 
 ## DB Scheme
 
