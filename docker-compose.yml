@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+    php-httpd:
+        # Content of Build-URL (Dockerfile):
+        #
+        # FROM php:apache
+        # RUN apt update; \
+        #    apt upgrade;
+        # RUN docker-php-ext-install mysqli
+        #
+        build: https://pastebin.com/raw/7kB05Em3
+        ports:
+            - 8081:80
+        volumes:
+            - ./html/:/var/www/html
+
+    mariadb:
+        image: mariadb:latest
+        volumes:
+            - ./mariadb-volume:/var/lib/mysql
+        environment:
+            TZ: "Europe/Berlin"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+            MYSQL_ROOT_PASSWORD: "P@ss0rd_change_it"

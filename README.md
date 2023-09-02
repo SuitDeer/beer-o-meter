@@ -1,5 +1,7 @@
 # Beer-o-Meter
 
+Beer-o-Meter is a website where several teams compete against each other. It's all about drinking. In a block diagram, the number of drinks drunk by each team is compared and displayed in a bar chart.
+
 ## Front Page
 ![Main-Page-Screenshot](README-images/image.png)
 
@@ -18,9 +20,23 @@
 
 ## Installation
 
+### Local
+
 1. Install Webserver + MySQL database ([XAMPP](https://www.apachefriends.org/download.html) for example is a good option)
 2. Copy content of this Repo into `htdocs`-Folder (Windows: `C:\xampp\htdocs`; Linux: `/opt/lampp/htdocs`)
-3. Open [https://localhost/createDBScheme.php](https://localhost/createDBScheme.php) to create a Database. If you use a external database please edit credentials and URL in the file: `php_includes/db_connect.php`
+3. Open [http://localhost/createDBScheme.php](http://localhost/createDBScheme.php) to create a Database and the right tables. 
+   If you use a external database please edit credentials and URL in the file: `php_includes/db_connect.php`
+
+
+### Docker Compose
+
+1. Deploy [docker-compose.yml](docker-compose.yml). 
+   
+   **!!! Change the `MYSQL_ROOT_PASSWORD` password !!!**
+2. Copy content of this Repo into the persistent volume of the php:apache Container.
+3. Please edit the following file `php_includes/db_connect.php`, add the `MYSQL_ROOT_PASSWORD` and uncommit the line below the comment 
+   `// Deployment as Docker container`.
+4. Open [http://\<IP-address-of-container\>:8081/createDBScheme.php](http://IP-address-of-container:8081/createDBScheme.php) to create a Database and the right tables. 
 
 ## Usage
 

@@ -1,5 +1,10 @@
 <?php
+// Local deplyment with XAMPP
 $host="localhost";
+
+// Deployment as Docker container
+//$host="mariadb";
+
 $user="root";
 $password="";
 $dbname="beerometer_db";
