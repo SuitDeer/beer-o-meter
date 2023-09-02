@@ -1,11 +1,13 @@
 <?php
-$db_connect = mysqli_connect("localhost", "root", "");
+// Connect to database
+include("php_includes/db_connect.php");
 
 // Create Database
 $sql = "CREATE DATABASE beerometer_db";
-$query = mysqli_query($db_connect, $sql);
+$query = mysqli_query($db, $sql);
 if ($query === TRUE) {
-  $db_connect_myDB = mysqli_connect("localhost", "root", "", "beerometer_db");
+  // Connect to database
+  include("php_includes/db_connect.php");
   echo "<p>Database created :)</p>";
 } else {
   echo "<p>Database not created :(</p>";
@@ -13,13 +15,13 @@ if ($query === TRUE) {
 
 // Create Team-Table
 if (!mysqli_query(
-    $db_connect_myDB,
+    $db,
     "CREATE TABLE team ( 
       t_ID INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
       t_name VARCHAR(200) NOT NULL DEFAULT 'Teamname'
   )"
   )) {
-    echo ("Error description: " . mysqli_error($db_connect_myDB));
+    echo ("Error description: " . mysqli_error($db));
   } else {
     echo "<p>Team Table created :)</p>";
   }
@@ -28,7 +30,7 @@ if (!mysqli_query(
 
 // Create Person-Table
 if (!mysqli_query(
-    $db_connect_myDB,
+    $db,
     "CREATE TABLE person ( 
       p_ID INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
       t_ID INT(10) UNSIGNED NOT NULL,
@@ -37,7 +39,7 @@ if (!mysqli_query(
       FOREIGN KEY (t_ID) REFERENCES team(t_ID) ON UPDATE CASCADE ON DELETE CASCADE
   )"
   )) {
-echo ("Error description: " . mysqli_error($db_connect_myDB));
+echo ("Error description: " . mysqli_error($db));
 } else {
 echo "<p>Person Table created :)</p>";
 }
@@ -47,7 +49,7 @@ echo "<p>Person Table created :)</p>";
 
 // Create Beer-Table
 if (!mysqli_query(
-  $db_connect_myDB,
+  $db,
     "CREATE TABLE beer ( 
         b_ID INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
         p_ID INT(10) UNSIGNED NOT NULL,
@@ -55,7 +57,7 @@ if (!mysqli_query(
         FOREIGN KEY (p_ID) REFERENCES person(p_ID) ON UPDATE CASCADE ON DELETE CASCADE
     )"
 )) {
-echo ("Error description: " . mysqli_error($db_connect_myDB));
+echo ("Error description: " . mysqli_error($db));
 } else {
 echo "<p>Beer Table created :)</p>";
 }

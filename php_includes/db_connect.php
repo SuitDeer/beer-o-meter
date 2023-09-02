@@ -1,10 +1,14 @@
 <?php
-// ## Testing ##
-$db = mysqli_connect("localhost", "root", "", "beerometer_db");
-//$db = mysqli_connect("mariadb", "root", "dbp@ss0rd1234", "beerometer_db");
-// Überprüfung ob die Verbindung auch aufgebaut wurde
-if (mysqli_connect_errno()) {
-    echo mysqli_connect_error();
-    exit();
+$host="localhost";
+$user="root";
+$password="";
+$dbname="beerometer_db";
+
+$db = new mysqli($host, $user, $password);
+
+if (! empty (mysqli_fetch_array(mysqli_query($db,"SHOW DATABASES LIKE '$dbname'"))))
+{
+    mysqli_close($db);
+    $db = mysqli_connect($host, $user, $password, $dbname);
 }
 ?>
