@@ -10,6 +10,20 @@ if (isset($_POST["dbOperation"])) {
     // Connect to database
     include_once("php_includes/db_connect.php");
 
+    // Get current calculation option for team points
+    $calcOption = "null";
+
+    $sqlOpt = "SELECT o_ID, o_value FROM options WHERE o_ID = 1";
+    $queryOpt = mysqli_query($db, $sqlOpt);
+
+    while ($rowOpt = mysqli_fetch_array($queryOpt, MYSQLI_ASSOC)) {
+      if ($rowOpt['o_value'] == "oneToOne") {
+        $calcOption = "oneToOne";
+      } elseif ($rowOpt['o_value'] == "oneToTeamSize") {
+        $calcOption = "oneToTeamSize";
+      }
+    }
+
     $sql = "SELECT team.t_ID, t_name, COUNT(beer.b_ID) as sumbeer FROM team JOIN person ON team.t_ID = person.t_ID JOIN beer ON person.p_ID = beer.p_ID GROUP BY team.t_ID ORDER BY sumbeer";
     $query = mysqli_query($db, $sql);
     while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
@@ -24,7 +38,12 @@ if (isset($_POST["dbOperation"])) {
         $sumpers = $rowNumPers['sumpers'];
       }
 
-      $sumbeer[] = $row['sumbeer'] - $sumpers;
+      if ($calcOption == "oneToOne") {
+        $sumbeer[] = $row['sumbeer'] - $sumpers;
+
+      } else if ($calcOption == "oneToTeamSize") {
+        $sumbeer[] = round(($row['sumbeer'] - $sumpers) / $sumpers, 2);
+      }
     }
 
     //Sending AJAX Response (Answer)
@@ -242,6 +261,7 @@ $teamNumRows = mysqli_num_rows($query);
           var sumbeerArray = JSON.parse(subresults[2]);
 
           // Get the highest number of beers of the best team. 
+          sumbeerArray.sort(function(a, b){return a-b});
           var beerhighscore = sumbeerArray[teamIdArray.length - 1];
 
           // Update view Modal Content

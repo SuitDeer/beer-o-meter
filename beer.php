@@ -65,6 +65,21 @@ if (isset($_POST["dbOperation"])) {
     }
   </script>
   <script src="js/ajax.js"></script>
+  <style>
+    #fadeoutdiv {
+      animation: fadeout 4s linear 1 forwards;
+    }
+
+    @keyframes fadeout {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -101,16 +116,28 @@ if (isset($_POST["dbOperation"])) {
       }
     }
 
+    // Sleep function
+    function sleep(milliseconds) {
+      const date = Date.now();
+      let currentDate = null;
+      do {
+        currentDate = Date.now();
+      } while (currentDate - date < milliseconds);
+    }
+
 
     // AJAX function that adds a beer and assign it to a person
     function addBeer() {
       var qrcode = document.getElementById("qrcodeInput").value;
 
+      document.getElementById("qrcodeInput").setAttribute("disabled","");
+
       var dbOperation = "ADD-BEER";
 
       if (qrcode == "") {
-        document.getElementById("beerAddStatus").innerHTML = `<div style="height: 300px; width: 100%; background-color: red; display: flex; justify-content: center; align-items: center; font-size: 7vw;">QRcode Input field is empty</div>`;
-        exit();
+        document.getElementById("beerAddStatus").innerHTML = `<div id="fadeoutdiv" style="height: 300px; width: 100%; background-color: red; display: flex; justify-content: center; align-items: center; font-size: 7vw;">QRcode Input field is empty</div>`;
+        document.getElementById("qrcodeInput").removeAttribute("disabled","");
+
       } else {
         document.getElementById("beerAddStatus").innerHTML = ``;
 
@@ -128,15 +155,28 @@ if (isset($_POST["dbOperation"])) {
             var firstname = subresults[2];
 
             if (personId == "null" || name == "null" || firstname == "null") {
-              document.getElementById("beerAddStatus").innerHTML = `<div style="height: 300px; width: 100%; background-color: red; display: flex; justify-content: center; align-items: center; font-size: 7vw;">QR-Code error</div>`;
+              document.getElementById("beerAddStatus").innerHTML = `<div id="fadeoutdiv" style="height: 300px; width: 100%; background-color: red; display: flex; justify-content: center; align-items: center; font-size: 7vw;">QR-Code error</div>`;
+              setTimeout(enableInputField, 2000);
+
             } else {
-              document.getElementById("beerAddStatus").innerHTML = `<div style="height: 300px; width: 100%; background-color: green; display: flex; justify-content: center; align-items: center; font-size: 4vw;">Added beer to person (` + personId + ` ` + name + ` ` + firstname + `)</div>`;
+              document.getElementById("beerAddStatus").innerHTML = `<div id="fadeoutdiv" style="height: 300px; width: 100%; background-color: green; display: flex; justify-content: center; align-items: center; font-size: 4vw;">Added beer to person (` + personId + ` ` + name + ` ` + firstname + `)</div>`;
+              setTimeout(enableInputField, 2000);
             }
           }
         }
         ajax.send("dbOperation=" + dbOperation + "&qrcode=" + qrcode);
       }
     }
+
+    function enableInputField(){
+      document.getElementById("qrcodeInput").removeAttribute("disabled","");
+      document.getElementById("qrcodeInput").focus();
+    }
+
+    // Get infos abot the teams on page load
+    window.onload = function() {
+      document.getElementById("qrcodeInput").focus();
+    };
   </script>
 </body>
 

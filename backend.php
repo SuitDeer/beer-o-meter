@@ -10,6 +10,20 @@ if (isset($_POST["dbOperation"])) {
     // Connect to database
     include_once("php_includes/db_connect.php");
 
+    // Get current calculation option for team points
+    $calcOption = "null";
+
+    $sqlOpt = "SELECT o_ID, o_value FROM options WHERE o_ID = 1";
+    $queryOpt = mysqli_query($db, $sqlOpt);
+
+    while ($rowOpt = mysqli_fetch_array($queryOpt, MYSQLI_ASSOC)) {
+      if ($rowOpt['o_value'] == "oneToOne") {
+        $calcOption = "oneToOne";
+      } elseif ($rowOpt['o_value'] == "oneToTeamSize") {
+        $calcOption = "oneToTeamSize";
+      }
+    }
+
     $sql = "SELECT t_ID, t_name FROM team";
     $query = mysqli_query($db, $sql);
 
@@ -29,7 +43,15 @@ if (isset($_POST["dbOperation"])) {
         while ($rowNumPers = mysqli_fetch_array($queryNumPers, MYSQLI_ASSOC)) {
           $sumpers = $rowNumPers['sumpers'];
         }
-        $sumbeers[] = $rowBeer['sumbeer'] - $sumpers;
+
+        if ($calcOption == "oneToOne") {
+          $sumbeers[] = $rowBeer['sumbeer'] - $sumpers;
+
+        } else if ($calcOption == "oneToTeamSize") {
+          $sumbeers[] = number_format( round(($rowBeer['sumbeer'] - $sumpers) / $sumpers, 2), 2, ',' );
+        }
+        
+        
       }
 
 
@@ -67,6 +89,21 @@ if (isset($_POST["dbOperation"])) {
     echo json_encode($delTeam);
     exit();
     // ########################### END (VIEW Beers per Team) ########################### 
+  } else if ($_POST["dbOperation"] == "UPDATE-CALCOPT") {
+    // ########################### START (UPDATE-CALCOPT) ########################### 
+    // Connect to database
+    include_once("php_includes/db_connect.php");
+
+    $optionvalue = $_POST["optionvalue"];
+
+    // Insert new Team into database
+    $sql = "UPDATE options SET o_value='".$optionvalue."' WHERE o_ID=1";
+    $query = mysqli_query($db, $sql);
+
+    //Sending AJAX Response (Answer)
+    echo "ok";
+    exit();
+    // ########################### END (UPDATE-CALCOPT) ########################### 
   } else if ($_POST["dbOperation"] == "ADD-TEAM") {
     // ########################### START (ADD Team) ########################### 
     // Connect to database
@@ -148,6 +185,9 @@ if (isset($_POST["dbOperation"])) {
 
 
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -165,11 +205,14 @@ if (isset($_POST["dbOperation"])) {
   </script>
   <script src="js/ajax.js"></script>
   <script src="js/qrcode.min.js"></script>
+
+  <script src="js/qrious.min.js"></script>
+
   <style>
     table,
     th,
     td {
-      border: 1px solid black;
+      border: 2px solid black;
       border-collapse: collapse;
       text-align: center;
     }
@@ -189,6 +232,8 @@ if (isset($_POST["dbOperation"])) {
     <a href="beer.php">To Add Beer Page</a>
   </p>
 
+
+
   <div style="display: inline-block;">
     <form onSubmit="return false;">
       <h1>Add Team</h1>
@@ -200,6 +245,8 @@ if (isset($_POST["dbOperation"])) {
       <span id="teamAddStatus"></span>
     </form>
   </div>
+
+
 
   <div style="display: inline-block; margin-left: 10px;">
     <form onSubmit="return false;">
@@ -232,14 +279,64 @@ if (isset($_POST["dbOperation"])) {
   </div>
 
 
+
+  <div style="display: inline-block; margin-left: 10px;">
+    <form onSubmit="return false;">
+      <h1>Calculation of points</h1>
+      <?php
+        // Get Options from Options-Table
+        // Connect to database
+        include_once("php_includes/db_connect.php");
+
+        $sql = "SELECT o_ID, o_value FROM options WHERE o_ID = 1";
+        $query = mysqli_query($db, $sql);
+
+        while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+          if ($row['o_value'] == "oneToOne") {
+            echo '
+            <input type="radio" id="oneToOne" name="cal_option" value="oneToOne" checked>
+            <label for="oneToOne">1 Beer = 1 Point</label>
+            <br>
+            <input type="radio" id="oneToTeamSize" name="cal_option" value="oneToTeamSize">
+            <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
+            <br>
+            <br>
+            Current active option: <b>1 Beer = 1 Point</b>
+            <br>';
+
+          } else if ($row['o_value'] == "oneToTeamSize"){
+            echo '
+            <input type="radio" id="oneToOne" name="cal_option" value="oneToOne">
+            <label for="oneToOne">1 Beer = 1 Point</label>
+            <br>
+            <input type="radio" id="oneToTeamSize" name="cal_option" value="oneToTeamSize" checked>
+            <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
+            <br>
+            <br>
+            Current active option: <b>1 Beer / number of team members = 0,XX Points</b>
+            <br>';
+          }
+        }
+      ?>
+      <button type="submit" id="submitbtnCalc" onclick="updateCalcOfPoints()" aria-label="Submit">Submit</button>
+    </form>
+  </div>
+
+
   <h1>Team-List</h1>
 
+  <button type="submit" id="submitbtnQrcode" onclick="getTeamInfos(1)" aria-label="Submit">Show QR-Codes</button>
+  <br>
+  <br>
+  <span id="qrcodeStatus"></span>
+  <br>
+  <br>
   <table style="border-width: 3px;">
     <thead>
       <tr style="border-width: 3px;">
         <th style="border-width: 3px;">Team-ID</th>
         <th style="border-width: 3px;">Team name</th>
-        <th style="border-width: 3px;">Beers</th>
+        <th style="border-width: 3px;">Beers/Points</th>
         <th style="border-width: 3px;">Members</th>
         <th style="border-width: 3px;">Delete</th>
       </tr>
@@ -254,12 +351,6 @@ if (isset($_POST["dbOperation"])) {
 
   <!--AJAX Script bolck-->
   <script>
-    // Submit form with ENTER
-    document.onkeydown = function() {
-      if (window.event.keyCode == '13') {
-        addBeer();
-      }
-    }
 
     // SHA-265 function
     async function hash(string) {
@@ -273,9 +364,29 @@ if (isset($_POST["dbOperation"])) {
     }
 
 
+    // AJAX function that update calc of points
+    function updateCalcOfPoints() {
+      var optionValue = document.querySelector('input[name="cal_option"]:checked').value;
+
+      var dbOperation = "UPDATE-CALCOPT";
+
+      var ajax = ajaxObj("POST", "backend.php");
+      ajax.onreadystatechange = function() {
+        if (ajaxReturn(ajax) == true) {
+          var result = ajax.responseText.trim();
+
+          // Reload Page
+          location.reload(true);
+          window.location.href = window.location.href;
+          window.scrollTo(0, 0);
+        }
+      }
+      ajax.send("dbOperation=" + dbOperation + "&optionvalue=" + optionValue);
+    }
+
 
     // AJAX function that gets infos about teams
-    function getTeamInfos() {
+    function getTeamInfos(option) {
       var dbOperation = "VIEW";
 
       var ajax = ajaxObj("POST", "backend.php");
@@ -290,43 +401,42 @@ if (isset($_POST["dbOperation"])) {
           var personInfosArray = JSON.parse(subresults[3]);
           var delTeamArray = JSON.parse(subresults[4]);
 
-          for (let i = 0; i < teamIdArray.length; i++) {
-            document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\">" + delTeamArray[i] + "</td></tr>";
-          }
+          if (option == 0) {
+            // ### Do not generate QR-Codes
+            for (let i = 0; i < teamIdArray.length; i++) {
+              document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\">" + delTeamArray[i] + "</td></tr>";
+            }
+            
+          } else if (option == 1) {
+            // ### Generate QR-Codes
+            document.getElementById("submitbtnQrcode").setAttribute("disabled","");
+            document.getElementById("qrcodeStatus").innerHTML = `<small>ℹ️ Reload page to activate "Show QR-Codes"-Button again ℹ️</small>`;
+            
+            // Generate QR-Code for each person
+            var persontable = document.getElementsByClassName("personlist");
 
-          // Generate QR-Code for each person
-          var persontable = document.getElementsByClassName("personlist");
-
-          for (let i = 0; i < persontable.length; i++) {
-            var tr = persontable[i].getElementsByTagName("tr");
-            for (let j = 0; j < tr.length; j++) {
-              var td = tr[j].getElementsByTagName("td");
-              var personString = "";
-              for (let k = 0; k < td.length; k++) {
-                if (k < 3) {
-                  personString += td[k].innerHTML;
+            for (let i = 0; i < persontable.length; i++) {
+              var tr = persontable[i].getElementsByTagName("tr");
+              for (let j = 0; j < tr.length; j++) {
+                var td = tr[j].getElementsByTagName("td");
+                var personString = "";
+                for (let k = 0; k < td.length; k++) {
+                  if (k < 3) {
+                    personString += td[k].innerHTML;
+                  }
                 }
-              }
 
-              //Add QR <td>-Element to table for (QR-Code) colum
-              var x = tr[j].insertCell();
-              x.innerHTML = '<div id="qrcode' + i + j + '" style="margin: 5px;"></div>';
-
-              // Create a new QR code instance
-              hash(personString).then((hex) => {
-
-                document.getElementById("qrcode" + i + j).textContent = hex;
-
-                var qrcode = new QRCode(document.getElementById("qrcode" + i + j), {
-                  text: hex,
-                  width: 128,
-                  height: 128
+                //Add QR <td>-Element to table for (QR-Code) colum
+                var x = tr[j].insertCell();
+                x.innerHTML = '<canvas id="qrcode' + i + j + '" style="margin: 5px;"></canvas><div id="qrcodevalue' + i + j + '"></div>';
+                // Create a new QR code instance
+                hash(personString).then((hex) => {
+                  document.getElementById("qrcodevalue" + i + j).textContent = hex;
+                  new QRious({element: document.getElementById("qrcode" + i + j), size: 170, value: hex});
                 });
-              });
-
+              }
             }
           }
-
         }
       }
       ajax.send("dbOperation=" + dbOperation);
@@ -433,7 +543,7 @@ if (isset($_POST["dbOperation"])) {
 
     // Get infos abot the teams on page load
     window.onload = function() {
-      getTeamInfos();
+      getTeamInfos(0);
     };
   </script>
 </body>
