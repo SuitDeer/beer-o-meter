@@ -51,7 +51,6 @@ if (isset($_POST["dbOperation"])) {
           $sumbeers[] = number_format( round(($rowBeer['sumbeer'] - $sumpers) / $sumpers, 2), 2, ',' );
         }
         
-        
       }
 
 
@@ -144,7 +143,7 @@ if (isset($_POST["dbOperation"])) {
     $firstname = $_POST["firstname"];
     $teamId = $_POST["teamId"];
 
-    // Insert new Team into database
+    // Insert new Person into database
     $sql = "INSERT INTO person (p_name, p_firstname, t_id)       
         VALUES('$name', '$firstname', '$teamId')";
     $query = mysqli_query($db, $sql);
@@ -177,6 +176,66 @@ if (isset($_POST["dbOperation"])) {
     echo "ok";
     exit();
     // ########################### END (DELETE Person) ########################### 
+  } else if ($_POST["dbOperation"] == "MASS-IMPORT") {
+    // ########################### START (MASS IMPORT) ########################### 
+    // Connect to database
+    include_once("php_includes/db_connect.php");
+
+    $myfile = $_POST["myfile"];
+
+    $lineArray=explode("\n",$myfile);
+    for ($i=0; $i < sizeof($lineArray) ; $i++) { 
+      
+      // Skip first line of csv file
+      if ($i > 0) {
+        $teamAndUserArray=explode(";",$lineArray[$i]);
+        
+        //Check if team already exists
+        $sql = "SELECT count(t_ID) as numofteams FROM team WHERE t_name='".$teamAndUserArray[0]."'";
+        $query = mysqli_query($db, $sql);
+        $numOfTeams = 0;
+        while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+          $numOfTeams = $row['numofteams'];
+        }
+        
+        // Create team if not exsistent
+        if ($numOfTeams == 0) {
+          // Insert new Team into database
+          $sql = "INSERT INTO team (t_name)       
+          VALUES('".$teamAndUserArray[0]."')";
+          $query = mysqli_query($db, $sql);
+        }
+
+        //Get teamId
+        $sql = "SELECT t_ID FROM team WHERE t_name='".$teamAndUserArray[0]."'";
+        $query = mysqli_query($db, $sql);
+        $teamId = 0;
+        while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+          $teamId = $row['t_ID'];
+        }
+
+        // Insert new Person into database
+        $sql = "INSERT INTO person (p_name, p_firstname, t_id)       
+        VALUES('".$teamAndUserArray[1]."', '".$teamAndUserArray[2]."', '".$teamId."')";
+        $query = mysqli_query($db, $sql);
+
+        // Get p_ID of newly added person
+        $newPersonId = mysqli_insert_id($db);
+
+        // Insert first beer for added person
+        $sql = "INSERT INTO beer (p_ID)       
+            VALUES('$newPersonId')";
+        $query = mysqli_query($db, $sql);
+          
+        
+      }
+      
+    }
+
+    //Sending AJAX Response (Answer)
+    echo "ok".sizeof($lineArray).$teamAndUserArray[2].$teamAndUserArray[1].$teamAndUserArray[0];
+    exit();
+    // ########################### END (MASS IMPORT) ########################### 
   }
   exit();
 }
@@ -204,8 +263,6 @@ if (isset($_POST["dbOperation"])) {
     }
   </script>
   <script src="js/ajax.js"></script>
-  <script src="js/qrcode.min.js"></script>
-
   <script src="js/qrious.min.js"></script>
 
   <style>
@@ -215,6 +272,13 @@ if (isset($_POST["dbOperation"])) {
       border: 2px solid black;
       border-collapse: collapse;
       text-align: center;
+    }
+
+    div {
+      display: inline-block; 
+      margin: 10px;
+      padding: 10px; 
+      border: 2px solid black;
     }
 
     a {
@@ -234,7 +298,7 @@ if (isset($_POST["dbOperation"])) {
 
 
 
-  <div style="display: inline-block;">
+  <div>
     <form onSubmit="return false;">
       <h1>Add Team</h1>
       <label for="teamnameInput" name="teamnameInputLabel">Team name:</label>
@@ -248,7 +312,7 @@ if (isset($_POST["dbOperation"])) {
 
 
 
-  <div style="display: inline-block; margin-left: 10px;">
+  <div>
     <form onSubmit="return false;">
       <h1>Add Person</h1>
       <label for="firstnameInput" name="firstnameInputLabel">First name:</label>
@@ -280,7 +344,7 @@ if (isset($_POST["dbOperation"])) {
 
 
 
-  <div style="display: inline-block; margin-left: 10px;">
+  <div>
     <form onSubmit="return false;">
       <h1>Calculation of points</h1>
       <?php
@@ -301,7 +365,9 @@ if (isset($_POST["dbOperation"])) {
             <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
             <br>
             <br>
-            Current active option: <b>1 Beer = 1 Point</b>
+            Current active option:
+            <br>
+            <b>1 Beer = 1 Point</b>
             <br>';
 
           } else if ($row['o_value'] == "oneToTeamSize"){
@@ -313,7 +379,9 @@ if (isset($_POST["dbOperation"])) {
             <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
             <br>
             <br>
-            Current active option: <b>1 Beer / number of team members = 0,XX Points</b>
+            Current active option:
+            <br>
+            <b>1 Beer / number of team members = 0,XX Points</b>
             <br>';
           }
         }
@@ -321,6 +389,24 @@ if (isset($_POST["dbOperation"])) {
       <button type="submit" id="submitbtnCalc" onclick="updateCalcOfPoints()" aria-label="Submit">Submit</button>
     </form>
   </div>
+
+
+
+  <div>
+    <form onSubmit="return false;">
+      <h1>Mass Import</h1>
+      Template: <a href="import.csv" download="import.csv">import.csv</a>
+      <br>
+      <br>
+      <label for="myfile">Datei auswählen:</label>
+      <input type="file" id="myfile" name="myfile" accept=".csv" required>
+      <br>
+      <button type="submit" id="submitbtnAdd" onclick="massImport()" aria-label="Submit">Submit</button>
+      <br>
+      <span id="massImportStatus"></span>
+    </form>
+  </div>
+
 
 
   <h1>Team-List</h1>
@@ -538,6 +624,37 @@ if (isset($_POST["dbOperation"])) {
         ajax.send("dbOperation=" + dbOperation + "&personId=" + personId);
       }
 
+    }
+
+    // AJAX function that adds teams and persons as a mass import
+    function massImport() {
+      var myfile = document.getElementById("myfile");
+      var dbOperation = "MASS-IMPORT";
+
+      if (myfile == "" || myfile.files.length == 0) {
+        document.getElementById("personAddStatus").innerHTML = `<b>No file selected or is empty</b>`;
+        exit();
+      } else {
+        document.getElementById("personAddStatus").innerHTML = ``;
+
+        let reader = new FileReader();
+        reader.readAsText(myfile.files[0]);
+        reader.onload = function() {
+          
+          var ajax = ajaxObj("POST", "backend.php");
+          ajax.onreadystatechange = function() {
+            if (ajaxReturn(ajax) == true) {
+              var result = ajax.responseText.trim();
+
+              // Reload Page
+              location.reload(true);
+              window.location.href = window.location.href;
+              window.scrollTo(0, 0);
+            }
+          }
+          ajax.send("dbOperation=" + dbOperation + "&myfile=" + reader.result);
+        };
+      }
     }
 
 
