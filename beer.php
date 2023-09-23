@@ -88,6 +88,8 @@ if (isset($_POST["dbOperation"])) {
     |
     <a href="backend.php">To Backend Page</a>
     |
+    <a href="print.php">To Print QR-Codes Page</a>
+    |
     <a href="beer.php">To Add Beer Page</a>
   </p>
 

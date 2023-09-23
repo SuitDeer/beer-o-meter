@@ -46,11 +46,9 @@ if (isset($_POST["dbOperation"])) {
 
         if ($calcOption == "oneToOne") {
           $sumbeers[] = $rowBeer['sumbeer'] - $sumpers;
-
         } else if ($calcOption == "oneToTeamSize") {
-          $sumbeers[] = number_format( round(($rowBeer['sumbeer'] - $sumpers) / $sumpers, 2), 2, ',' );
+          $sumbeers[] = number_format(round(($rowBeer['sumbeer'] - $sumpers) / $sumpers, 2), 2, ',');
         }
-        
       }
 
 
@@ -96,7 +94,7 @@ if (isset($_POST["dbOperation"])) {
     $optionvalue = $_POST["optionvalue"];
 
     // Insert new Team into database
-    $sql = "UPDATE options SET o_value='".$optionvalue."' WHERE o_ID=1";
+    $sql = "UPDATE options SET o_value='" . $optionvalue . "' WHERE o_ID=1";
     $query = mysqli_query($db, $sql);
 
     //Sending AJAX Response (Answer)
@@ -111,8 +109,8 @@ if (isset($_POST["dbOperation"])) {
     $teamname = $_POST["teamname"];
 
     // Insert new Team into database
-    $sql = "INSERT INTO team (t_name)       
-        VALUES('$teamname')";
+    $sql = "INSERT INTO team (t_name)             
+                VALUES('$teamname')";
     $query = mysqli_query($db, $sql);
 
     //Sending AJAX Response (Answer)
@@ -127,7 +125,7 @@ if (isset($_POST["dbOperation"])) {
     $teamId = $_POST["teamId"];
 
     $sql = "DELETE FROM team 
-    WHERE t_id = $teamId";
+        WHERE t_id = $teamId";
     $query = mysqli_query($db, $sql);
 
     //Sending AJAX Response (Answer)
@@ -144,8 +142,8 @@ if (isset($_POST["dbOperation"])) {
     $teamId = $_POST["teamId"];
 
     // Insert new Person into database
-    $sql = "INSERT INTO person (p_name, p_firstname, t_id)       
-        VALUES('$name', '$firstname', '$teamId')";
+    $sql = "INSERT INTO person (p_name, p_firstname, t_id)             
+                VALUES('$name', '$firstname', '$teamId')";
     $query = mysqli_query($db, $sql);
 
 
@@ -153,8 +151,8 @@ if (isset($_POST["dbOperation"])) {
     $newPersonId = mysqli_insert_id($db);
 
     // Insert first beer for added person
-    $sql = "INSERT INTO beer (p_ID)       
-        VALUES('$newPersonId')";
+    $sql = "INSERT INTO beer (p_ID)             
+                VALUES('$newPersonId')";
     $query = mysqli_query($db, $sql);
 
     //Sending AJAX Response (Answer)
@@ -169,7 +167,7 @@ if (isset($_POST["dbOperation"])) {
     $personId = $_POST["personId"];
 
     $sql = "DELETE FROM person 
-    WHERE p_id = $personId";
+        WHERE p_id = $personId";
     $query = mysqli_query($db, $sql);
 
     //Sending AJAX Response (Answer)
@@ -183,31 +181,31 @@ if (isset($_POST["dbOperation"])) {
 
     $myfile = $_POST["myfile"];
 
-    $lineArray=explode("\n",$myfile);
-    for ($i=0; $i < sizeof($lineArray) ; $i++) { 
-      
+    $lineArray = explode("\n", $myfile);
+    for ($i = 0; $i < sizeof($lineArray); $i++) {
+
       // Skip first line of csv file
       if ($i > 0) {
-        $teamAndUserArray=explode(";",$lineArray[$i]);
-        
+        $teamAndUserArray = explode(";", $lineArray[$i]);
+
         //Check if team already exists
-        $sql = "SELECT count(t_ID) as numofteams FROM team WHERE t_name='".$teamAndUserArray[0]."'";
+        $sql = "SELECT count(t_ID) as numofteams FROM team WHERE t_name='" . $teamAndUserArray[0] . "'";
         $query = mysqli_query($db, $sql);
         $numOfTeams = 0;
         while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
           $numOfTeams = $row['numofteams'];
         }
-        
+
         // Create team if not exsistent
         if ($numOfTeams == 0) {
           // Insert new Team into database
-          $sql = "INSERT INTO team (t_name)       
-          VALUES('".$teamAndUserArray[0]."')";
+          $sql = "INSERT INTO team (t_name)             
+                    VALUES('" . $teamAndUserArray[0] . "')";
           $query = mysqli_query($db, $sql);
         }
 
         //Get teamId
-        $sql = "SELECT t_ID FROM team WHERE t_name='".$teamAndUserArray[0]."'";
+        $sql = "SELECT t_ID FROM team WHERE t_name='" . $teamAndUserArray[0] . "'";
         $query = mysqli_query($db, $sql);
         $teamId = 0;
         while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
@@ -215,25 +213,22 @@ if (isset($_POST["dbOperation"])) {
         }
 
         // Insert new Person into database
-        $sql = "INSERT INTO person (p_name, p_firstname, t_id)       
-        VALUES('".$teamAndUserArray[1]."', '".$teamAndUserArray[2]."', '".$teamId."')";
+        $sql = "INSERT INTO person (p_name, p_firstname, t_id)             
+                VALUES('" . $teamAndUserArray[1] . "', '" . $teamAndUserArray[2] . "', '" . $teamId . "')";
         $query = mysqli_query($db, $sql);
 
         // Get p_ID of newly added person
         $newPersonId = mysqli_insert_id($db);
 
         // Insert first beer for added person
-        $sql = "INSERT INTO beer (p_ID)       
-            VALUES('$newPersonId')";
+        $sql = "INSERT INTO beer (p_ID)             
+                        VALUES('$newPersonId')";
         $query = mysqli_query($db, $sql);
-          
-        
       }
-      
     }
 
     //Sending AJAX Response (Answer)
-    echo "ok".sizeof($lineArray).$teamAndUserArray[2].$teamAndUserArray[1].$teamAndUserArray[0];
+    echo "ok" . sizeof($lineArray) . $teamAndUserArray[2] . $teamAndUserArray[1] . $teamAndUserArray[0];
     exit();
     // ########################### END (MASS IMPORT) ########################### 
   }
@@ -275,9 +270,9 @@ if (isset($_POST["dbOperation"])) {
     }
 
     div {
-      display: inline-block; 
+      display: inline-block;
       margin: 10px;
-      padding: 10px; 
+      padding: 10px;
       border: 2px solid black;
     }
 
@@ -292,6 +287,8 @@ if (isset($_POST["dbOperation"])) {
     <a href="/">To Frontend Page</a>
     |
     <a href="backend.php">To Backend Page</a>
+    |
+    <a href="print.php">To Print QR-Codes Page</a>
     |
     <a href="beer.php">To Add Beer Page</a>
   </p>
@@ -348,43 +345,42 @@ if (isset($_POST["dbOperation"])) {
     <form onSubmit="return false;">
       <h1>Calculation of points</h1>
       <?php
-        // Get Options from Options-Table
-        // Connect to database
-        include_once("php_includes/db_connect.php");
+      // Get Options from Options-Table
+      // Connect to database
+      include_once("php_includes/db_connect.php");
 
-        $sql = "SELECT o_ID, o_value FROM options WHERE o_ID = 1";
-        $query = mysqli_query($db, $sql);
+      $sql = "SELECT o_ID, o_value FROM options WHERE o_ID = 1";
+      $query = mysqli_query($db, $sql);
 
-        while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
-          if ($row['o_value'] == "oneToOne") {
-            echo '
-            <input type="radio" id="oneToOne" name="cal_option" value="oneToOne" checked>
-            <label for="oneToOne">1 Beer = 1 Point</label>
-            <br>
-            <input type="radio" id="oneToTeamSize" name="cal_option" value="oneToTeamSize">
-            <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
-            <br>
-            <br>
-            Current active option:
-            <br>
-            <b>1 Beer = 1 Point</b>
-            <br>';
-
-          } else if ($row['o_value'] == "oneToTeamSize"){
-            echo '
-            <input type="radio" id="oneToOne" name="cal_option" value="oneToOne">
-            <label for="oneToOne">1 Beer = 1 Point</label>
-            <br>
-            <input type="radio" id="oneToTeamSize" name="cal_option" value="oneToTeamSize" checked>
-            <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
-            <br>
-            <br>
-            Current active option:
-            <br>
-            <b>1 Beer / number of team members = 0,XX Points</b>
-            <br>';
-          }
+      while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+        if ($row['o_value'] == "oneToOne") {
+          echo '
+                        <input type="radio" id="oneToOne" name="cal_option" value="oneToOne" checked>
+                        <label for="oneToOne">1 Beer = 1 Point</label>
+                        <br>
+                        <input type="radio" id="oneToTeamSize" name="cal_option" value="oneToTeamSize">
+                        <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
+                        <br>
+                        <br>
+                        Current active option:
+                        <br>
+                        <b>1 Beer = 1 Point</b>
+                        <br>';
+        } else if ($row['o_value'] == "oneToTeamSize") {
+          echo '
+                        <input type="radio" id="oneToOne" name="cal_option" value="oneToOne">
+                        <label for="oneToOne">1 Beer = 1 Point</label>
+                        <br>
+                        <input type="radio" id="oneToTeamSize" name="cal_option" value="oneToTeamSize" checked>
+                        <label for="oneToTeamSize">1 Beer / number of team members = 0,XX Points</label>
+                        <br>
+                        <br>
+                        Current active option:
+                        <br>
+                        <b>1 Beer / number of team members = 0,XX Points</b>
+                        <br>';
         }
+      }
       ?>
       <button type="submit" id="submitbtnCalc" onclick="updateCalcOfPoints()" aria-label="Submit">Submit</button>
     </form>
@@ -437,7 +433,6 @@ if (isset($_POST["dbOperation"])) {
 
   <!--AJAX Script bolck-->
   <script>
-
     // SHA-265 function
     async function hash(string) {
       const utf8 = new TextEncoder().encode(string);
@@ -492,12 +487,12 @@ if (isset($_POST["dbOperation"])) {
             for (let i = 0; i < teamIdArray.length; i++) {
               document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\">" + delTeamArray[i] + "</td></tr>";
             }
-            
+
           } else if (option == 1) {
             // ### Generate QR-Codes
-            document.getElementById("submitbtnQrcode").setAttribute("disabled","");
+            document.getElementById("submitbtnQrcode").setAttribute("disabled", "");
             document.getElementById("qrcodeStatus").innerHTML = `<small>ℹ️ Reload page to activate "Show QR-Codes"-Button again ℹ️</small>`;
-            
+
             // Generate QR-Code for each person
             var persontable = document.getElementsByClassName("personlist");
 
@@ -514,11 +509,15 @@ if (isset($_POST["dbOperation"])) {
 
                 //Add QR <td>-Element to table for (QR-Code) colum
                 var x = tr[j].insertCell();
-                x.innerHTML = '<canvas id="qrcode' + i + j + '" style="margin: 5px;"></canvas><div id="qrcodevalue' + i + j + '"></div>';
+                x.innerHTML = '<canvas id="qrcode' + i + j + '" style="margin: 5px;"></canvas><p id="qrcodevalue' + i + j + '"></p>';
                 // Create a new QR code instance
                 hash(personString).then((hex) => {
                   document.getElementById("qrcodevalue" + i + j).textContent = hex;
-                  new QRious({element: document.getElementById("qrcode" + i + j), size: 170, value: hex});
+                  new QRious({
+                    element: document.getElementById("qrcode" + i + j),
+                    size: 170,
+                    value: hex
+                  });
                 });
               }
             }
@@ -640,7 +639,7 @@ if (isset($_POST["dbOperation"])) {
         let reader = new FileReader();
         reader.readAsText(myfile.files[0]);
         reader.onload = function() {
-          
+
           var ajax = ajaxObj("POST", "backend.php");
           ajax.onreadystatechange = function() {
             if (ajaxReturn(ajax) == true) {
