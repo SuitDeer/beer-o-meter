@@ -24,6 +24,11 @@ if (!mysqli_query(
   echo ("Error description: " . mysqli_error($db));
 } else {
   echo "<p>Team Table created :)</p>";
+
+  // Insert "-" (no team) Option into Team-Table
+  $sql = "INSERT INTO team (t_name)       
+  VALUES('-')";
+  $query = mysqli_query($db, $sql);
 }
 
 

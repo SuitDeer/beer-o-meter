@@ -24,7 +24,7 @@ if (isset($_POST["dbOperation"])) {
       }
     }
 
-    $sql = "SELECT team.t_ID, t_name, COUNT(beer.b_ID) as sumbeer FROM team JOIN person ON team.t_ID = person.t_ID JOIN beer ON person.p_ID = beer.p_ID GROUP BY team.t_ID ORDER BY sumbeer";
+    $sql = "SELECT team.t_ID, t_name, COUNT(beer.b_ID) as sumbeer FROM team JOIN person ON team.t_ID = person.t_ID JOIN beer ON person.p_ID = beer.p_ID WHERE team.t_ID != 1 GROUP BY team.t_ID ORDER BY sumbeer";
     $query = mysqli_query($db, $sql);
     while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
       $teamId[] = $row['t_ID'];
@@ -65,7 +65,7 @@ if (isset($_POST["dbOperation"])) {
 include_once("php_includes/db_connect.php");
 
 // Get number of teams from database.
-$sql = "SELECT * FROM team";
+$sql = "SELECT * FROM team WHERE t_ID != 1";
 $query = mysqli_query($db, $sql);
 $teamNumRows = mysqli_num_rows($query);
 ?>

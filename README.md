@@ -2,21 +2,28 @@
 
 Beer-o-Meter is a website where several teams compete against each other. It's all about drinking. In a block diagram, the number of drinks drunk by each team is compared and displayed in a bar chart.
 
-## Front Page
+## Frontend Page
 
-![Main-Page-Screenshot](README-images/image.png)
+![Main-Page-Screenshot](README-images/frontend-page.png)
 
 <br>
 
 ## Backend Page
 
-![Backend-Page-Screenshot](<README-images/image(1).png>)
+![Backend-Page-Screenshot](<README-images/backend-page.png>)
+
+
+<br>
+
+## "Print QR-Codes" Page
+
+![Add-Beer-Page-Screenshot](<README-images/print-qr-code-page.png>)
 
 <br>
 
 ## "Add Beer" Page
 
-![Add-Beer-Page-Screenshot](<README-images/image(2).png>)
+![Add-Beer-Page-Screenshot](<README-images/add-beer-page.png>)
 
 ## Installation
 
@@ -48,7 +55,7 @@ On the **"Add Beer" Page** [https://localhost/beer.php](https://localhost/beer.p
 
 ## DB Scheme
 
-![Database-Scheme-Screenshot](<README-images/image(3).png>)
+![Database-Scheme-Screenshot](<README-images/db-scheme.png>)
 
 ### Options-Table
 

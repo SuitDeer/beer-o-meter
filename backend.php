@@ -24,7 +24,7 @@ if (isset($_POST["dbOperation"])) {
       }
     }
 
-    $sql = "SELECT t_ID, t_name FROM team";
+    $sql = "SELECT t_ID, t_name FROM team WHERE t_ID != 1";
     $query = mysqli_query($db, $sql);
 
     $sumbeers = array();
@@ -332,6 +332,7 @@ if (isset($_POST["dbOperation"])) {
         }
         ?>
       </select>
+      <small>"-" team = Assign person to no team</small>
       <br>
       <button type="submit" id="submitbtnAdd" onclick="addPerson()" aria-label="Submit">Submit</button>
       <br>
