@@ -1,7 +1,7 @@
 version: '3.7'
 services:
     php-httpd:
-        build: https://pastebin.com/raw/7kB05Em3
+        build:
             context: .
             dockerfile_inline: "FROM php:apache\nRUN apt update; apt upgrade;\nRUN docker-php-ext-install mysqli"
         ports:
