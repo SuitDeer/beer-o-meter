@@ -2,26 +2,27 @@
 
 Beer-o-Meter is a website where several teams compete against each other. It's all about drinking. In a block diagram, the number of drinks drunk by each team is compared and displayed in a bar chart.
 
-## Frontend Page
+## Screenshots
+
+### Frontend Page
 
 ![Main-Page-Screenshot](README-images/frontend-page.png)
 
 <br>
 
-## Backend Page
+### Backend Page
 
 ![Backend-Page-Screenshot](<README-images/backend-page.png>)
 
-
 <br>
 
-## "Print QR-Codes" Page
+### "Print QR-Codes" Page
 
 ![Add-Beer-Page-Screenshot](<README-images/print-qr-code-page.png>)
 
 <br>
 
-## "Add Beer" Page
+### "Add Beer" Page
 
 ![Add-Beer-Page-Screenshot](<README-images/add-beer-page.png>)
 
@@ -36,7 +37,31 @@ Beer-o-Meter is a website where several teams compete against each other. It's a
 
 ### Docker Compose
 
-1. Deploy [docker-compose.yml](docker-compose.yml).
+1. Deploy via following `docker-compose.yaml` file.
+   
+   ```yaml
+   version: '3.7'
+   services:
+      php-httpd:
+         build:
+            context: .
+            dockerfile_inline: "FROM php:apache\nRUN apt update; apt upgrade;\nRUN docker-php-ext-install mysqli"
+         depends_on:
+            - mariadb
+         ports:
+            - 8081:80
+         volumes:
+            - ./html/:/var/www/html
+
+      mariadb:
+         image: mariadb:latest
+         volumes:
+            - ./mariadb-volume:/var/lib/mysql
+         environment:
+            TZ: "Europe/Berlin"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+            MYSQL_ROOT_PASSWORD: "P@ss0rd_change_it"
+   ```
 
    **!!! Change the `MYSQL_ROOT_PASSWORD` password !!!**
 
