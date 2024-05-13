@@ -84,13 +84,13 @@ if (isset($_POST["dbOperation"])) {
 
 <body>
   <p>
-    <a href="/">To Frontend Page</a>
+    <a href="/">Frontend page</a>
     |
-    <a href="backend.php">To Backend Page</a>
+    <a href="backend.php">Backend page</a>
     |
-    <a href="print.php">To Print QR-Codes Page</a>
+    <a href="print.php">Print QR-Codes page</a>
     |
-    <a href="beer.php">To Add Beer Page</a>
+    <b>Add Beer page</b>
   </p>
 
 

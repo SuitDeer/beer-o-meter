@@ -24,7 +24,7 @@ if (isset($_POST["dbOperation"])) {
       }
     }
 
-    $sql = "SELECT t_ID, t_name FROM team WHERE t_ID != 1";
+    $sql = "SELECT t_ID, t_name FROM team";
     $query = mysqli_query($db, $sql);
 
     $sumbeers = array();
@@ -159,6 +159,24 @@ if (isset($_POST["dbOperation"])) {
     echo "ok";
     exit();
     // ########################### END (ADD Person) ########################### 
+  } else if ($_POST["dbOperation"] == "UPDATE-PERSON") {
+    // ########################### START (UPDATE Person) ########################### 
+    // Connect to database
+    include_once("php_includes/db_connect.php");
+
+    $personid = $_POST["personId"];
+    $teamId = $_POST["teamId"];
+
+    // Update person
+    $sql = "UPDATE person
+                SET t_ID = '$teamId'
+                WHERE p_ID = '$personid'";
+    $query = mysqli_query($db, $sql);
+
+    //Sending AJAX Response (Answer)
+    echo "ok";
+    exit();
+    // ########################### END (ADD Person) ########################### 
   } else if ($_POST["dbOperation"] == "DELETE-PERSON") {
     // ########################### START (DELETE Person) ########################### 
     // Connect to database
@@ -284,13 +302,13 @@ if (isset($_POST["dbOperation"])) {
 
 <body>
   <p>
-    <a href="/">To Frontend Page</a>
+    <a href="/">Frontend page</a>
     |
-    <a href="backend.php">To Backend Page</a>
+    <b>Backend page</b>
     |
-    <a href="print.php">To Print QR-Codes Page</a>
+    <a href="print.php">To Print QR-Codes page</a>
     |
-    <a href="beer.php">To Add Beer Page</a>
+    <a href="beer.php">To Add Beer page</a>
   </p>
 
 
@@ -337,6 +355,48 @@ if (isset($_POST["dbOperation"])) {
       <button type="submit" id="submitbtnAdd" onclick="addPerson()" aria-label="Submit">Submit</button>
       <br>
       <span id="personAddStatus"></span>
+    </form>
+  </div>
+
+
+
+  <div>
+    <form onSubmit="return false;">
+      <h1>Update team membership</h1>
+      <label for="personDropDown">Person:</label>
+
+      <select name="personDropDown" id="personDropDown" required>
+        <?php
+        // Connect to database
+        include_once("php_includes/db_connect.php");
+
+        $sql = "SELECT p_ID, p_name, p_firstname FROM person";
+        $query = mysqli_query($db, $sql);
+        while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+          echo '<option value="' . $row['p_ID'] . '">(' . $row['p_ID'] . ') ' . $row['p_name'] . ', ' . $row['p_firstname'] . '</option>';
+        }
+        ?>
+      </select>
+      <br>
+      <label for="teamDropDown2">Team:</label>
+
+      <select name="teamDropDown2" id="teamDropDown2" required>
+        <?php
+        // Connect to database
+        include_once("php_includes/db_connect.php");
+
+        $sql = "SELECT t_ID, t_name FROM team";
+        $query = mysqli_query($db, $sql);
+        while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+          echo '<option value="' . $row['t_ID'] . '">' . $row['t_name'] . '</option>';
+        }
+        ?>
+      </select>
+      <small>"-" team = Assign person to no team</small>
+      <br>
+      <button type="submit" id="submitbtnUpdatePerson" onclick="updatePerson()" aria-label="Submit">Submit</button>
+      <br>
+      <span id="personUpdateStatus"></span>
     </form>
   </div>
 
@@ -484,9 +544,13 @@ if (isset($_POST["dbOperation"])) {
           var delTeamArray = JSON.parse(subresults[4]);
 
           if (option == 0) {
-            // ### Do not generate QR-Codes
+            // ### Do not generate QR-Codes (default option)
             for (let i = 0; i < teamIdArray.length; i++) {
-              document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\">" + delTeamArray[i] + "</td></tr>";
+              if (i == 0) {
+                document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\"></td></tr>";
+              } else {
+                document.getElementById('teamlist').innerHTML += "<tr style=\"border-width: 3px;\"><td style=\"border-width: 3px;\">" + teamIdArray[i] + "</td><td style=\"border-width: 3px;\">" + teamNameArray[i] + "</td><td style=\"border-width: 3px;\">" + sumbeersArray[i] + "</td style=\"border-width: 3px;\"><td style=\"border-width: 3px;\"> <table style=\"margin: 15px 0px 15px 0px; min-width: 100%;\"><thead><tr><td>Person-ID</td><td>Name</td><td>First name</td><td>Beers</td><td>Delete</td><td>QR-Code / Value in the QR-Code</td></thead><tbody class=\"personlist\">" + personInfosArray[i] + "</tbody></table></td><td style=\"border-width: 3px;\">" + delTeamArray[i] + "</td></tr>";
+              }
             }
 
           } else if (option == 1) {
@@ -494,7 +558,7 @@ if (isset($_POST["dbOperation"])) {
             document.getElementById("submitbtnQrcode").setAttribute("disabled", "");
             document.getElementById("qrcodeStatus").innerHTML = `<small>ℹ️ Reload page to activate "Show QR-Codes"-Button again ℹ️</small>`;
 
-            // Generate QR-Code for each person
+            // Generate QR-Code for each person (p_ID + p_name + p_firstname)
             var persontable = document.getElementsByClassName("personlist");
 
             for (let i = 0; i < persontable.length; i++) {
@@ -555,6 +619,7 @@ if (isset($_POST["dbOperation"])) {
       }
     }
 
+
     // AJAX function that deletes a team
     function deleteTeam(teamId) {
       var dbOperation = "DELETE-TEAM";
@@ -605,6 +670,34 @@ if (isset($_POST["dbOperation"])) {
       }
     }
 
+    // AJAX function that updates a person
+    function updatePerson() {
+      var personId = document.getElementById("personDropDown").value;
+      var teamId = document.getElementById("teamDropDown2").value;
+      var dbOperation = "UPDATE-PERSON";
+
+      if (personId == "" || teamId == "") {
+        document.getElementById("personUpdateStatus").innerHTML = `<b>personId or teamId is empty</b>`;
+        exit();
+      } else {
+        document.getElementById("personUpdateStatus").innerHTML = ``;
+
+        var ajax = ajaxObj("POST", "backend.php");
+        ajax.onreadystatechange = function() {
+          if (ajaxReturn(ajax) == true) {
+            var result = ajax.responseText.trim();
+
+            // Reload Page
+            location.reload(true);
+            window.location.href = window.location.href;
+            window.scrollTo(0, 0);
+          }
+        }
+        ajax.send("dbOperation=" + dbOperation + "&personId=" + personId + "&teamId=" + teamId);
+      }
+    }
+
+
     // AJAX function that deletes a person
     function deletePerson(personId) {
       var dbOperation = "DELETE-PERSON";
@@ -625,6 +718,7 @@ if (isset($_POST["dbOperation"])) {
       }
 
     }
+
 
     // AJAX function that adds teams and persons as a mass import
     function massImport() {

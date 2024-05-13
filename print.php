@@ -103,13 +103,13 @@ if (isset($_POST["dbOperation"])) {
 
 <body>
   <nav>
-    <a href="/">To Frontend Page</a>
+    <a href="/">Frontend page</a>
     |
-    <a href="backend.php">To Backend Page</a>
+    <a href="backend.php">Backend page</a>
     |
-    <a href="print.php">To Print QR-Codes Page</a>
+    <b>Print QR-Codes page</b>
     |
-    <a href="beer.php">To Add Beer Page</a>
+    <a href="beer.php">Add Beer page</a>
     <br>
     <h1>Press  Strg+P / Ctrl+P</h1>
   </nav>
